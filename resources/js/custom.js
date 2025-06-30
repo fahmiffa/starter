@@ -19,23 +19,14 @@ export const layout = () => {
     };
 };
 
-export const dataTable = () => {
+export const dataTable = (data) => {
     return {
         search: '',
         sortColumn: 'name',
         sortAsc: true,
         currentPage: 1,
         perPage: 5,
-        rows: [
-            { id: 1, name: 'Alice', email: 'alice@example.com', age: 30 },
-            { id: 2, name: 'Bob', email: 'bob@example.com', age: 25 },
-            { id: 3, name: 'Charlie', email: 'charlie@example.com', age: 35 },
-            { id: 4, name: 'David', email: 'david@example.com', age: 28 },
-            { id: 5, name: 'Eve', email: 'eve@example.com', age: 22 },
-            { id: 6, name: 'Frank', email: 'frank@example.com', age: 29 },
-            { id: 7, name: 'Grace', email: 'grace@example.com', age: 27 },
-            { id: 8, name: 'Heidi', email: 'heidi@example.com', age: 33 },
-        ],
+        rows : data,
 
         sortBy(column) {
             if (this.sortColumn === column) {

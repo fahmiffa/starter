@@ -18,7 +18,6 @@
                         <path d="M6 4v4" />
                     </svg>
                 </button>
-
             </div>
             <nav class="p-4 space-y-2">
                 <a href="#" class="block px-4 py-2 hover:bg-gray-700 rounded">Home</a>
@@ -75,12 +74,12 @@
                 </a>
             </header>
 
-            <main class="flex-1 overflow-y-auto p-6" @click="closeSidebarOnMobile">
-                <div class="text-gray-800 text-lg">
-                    <div x-data="dataTable()" class="p-4 max-w-4xl mx-auto">
+            <main class="flex-1 overflow-y-auto py-6" @click="closeSidebarOnMobile">
+                <div class="text-gray-800 text-lg bg-gray-50 rounded-2xl shadow-xl max-w-3xl mx-auto">
+                    <div x-data='dataTable(@json($users, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT))' class="p-4 max-w-4xl mx-auto">
                         <div class="mb-4 flex justify-between">
                             <input type="text" x-model="search" placeholder="Search..."
-                                class="border rounded px-3 py-2 w-full md:w-1/3" />
+                                class="border border-gray-900 bg-gray-50 ring-0 rounded-xl p-1 w-full md:w-1/3" />
                         </div>
 
                         <table class="min-w-full bg-white border border-gray-200 text-sm">
