@@ -1,19 +1,19 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\Models\Unit;
+use App\Models\Categori;
 use Auth;
 use Illuminate\Http\Request;
 
-class UnitController extends Controller
+class CategoriController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $items = Unit::select('name', 'pcs', 'id')->get();
-        return view('unit.index', compact('items'));
+        $items = Categori::select('name', 'id')->get();
+        return view('categori.index', compact('items'));
     }
 
     /**
@@ -22,7 +22,7 @@ class UnitController extends Controller
     public function create()
     {
         $action = "Tambah";
-        return view('unit.form', compact('action'));
+        return view('categori.form', compact('action'));
     }
 
     /**
@@ -32,25 +32,22 @@ class UnitController extends Controller
     {
         $request->validate([
             'name' => 'required',
-            'pcs'  => 'required',
         ], [
             'name.required' => 'Nama sekarang wajib diisi.',
-            'pcs.required'  => 'PCS wajib diisi.',
         ]);
 
-        $item       = new Unit;
+        $item       = new Categori;
         $item->name = $request->name;
-        $item->pcs  = $request->pcs;
         $item->user = Auth::user()->id;
         $item->save();
 
-        return redirect()->route('dashboard.unit.index');
+        return redirect()->route('dashboard.categori.index');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Unit $unit)
+    public function show(Categori $categori)
     {
         //
     }
@@ -58,39 +55,37 @@ class UnitController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Unit $unit)
+    public function edit(Categori $categori)
     {
-        $items  = $unit;
+        $items  = $categori;
         $action = "Edit";
-        return view('unit.form', compact('items', 'action'));
+        return view('categori.form', compact('items', 'action'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Unit $unit)
+    public function update(Request $request, Categori $categori)
     {
         $request->validate([
             'name' => 'required',
-            'pcs'  => 'required',
         ], [
             'name.required' => 'Nama sekarang wajib diisi.',
-            'pcs.required'  => 'PCS wajib diisi.',
         ]);
 
-        $unit->name = $request->name;
-        $unit->pcs  = $request->pcs;
-        $unit->save();
+        $categori->name = $request->name;
 
-        return redirect()->route('dashboard.unit.index');
+        $categori->save();
+
+        return redirect()->route('dashboard.categori.index');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Unit $unit)
+    public function destroy(Categori $categori)
     {
-        $unit->delete();
-        return redirect()->route('dashboard.unit.index');
+        $categori->delete();
+        return redirect()->route('dashboard.categori.index');
     }
 }

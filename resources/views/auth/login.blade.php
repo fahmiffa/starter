@@ -5,18 +5,6 @@
         <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
             <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Login</h2>
 
-            @if ($errors->any())
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-                    <strong class="font-bold">Oops!</strong>
-                    <span class="block sm:inline">Ada beberapa masalah dengan input Anda.</span>
-                    <ul class="mt-3 list-disc list-inside text-sm">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
             <form method="POST" action="{{ route('login') }}">
                 @csrf
 
@@ -70,9 +58,9 @@
                     @endif
                 </div>
 
-                <div class="flex items-center justify-center">
+                <div class="flex items-center">
                     <button type="submit"
-                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full">
+                        class="bg-gray-600 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded-2xl focus:outline-none focus:shadow-outline w-25">
                         Login
                     </button>
                 </div>

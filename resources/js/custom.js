@@ -7,6 +7,9 @@ export const layout = () => {
         toggleSidebar() {
             this.sidebarOpen = !this.sidebarOpen;
             localStorage.setItem("sidebarOpen", this.sidebarOpen);
+            if(!isMobileDevice)
+            {
+            }
         },
         toggleSidebarMobile() {
             this.sidebarOpen = !this.sidebarOpen;
@@ -19,6 +22,9 @@ export const layout = () => {
     };
 };
 
+function isMobileDevice() {
+    return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+}
 export const dataTable = (data) => {
     return {
         search: "",
@@ -98,7 +104,7 @@ export function imageCropper() {
                     aspectRatio: 1,
                     viewMode: 1,
                     dragMode: true,
-                    aspectRatio: 1, 
+                    aspectRatio: 1,
                     zoomable: false,
                     rotatable: false,
                     cropBoxResizable: false,
@@ -140,3 +146,23 @@ export function imageCropper() {
         },
     };
 }
+
+export const dataSelect = (data) => {
+    console.log(data);
+    return {
+        open: false,
+        search: "",
+        selected: null,
+        options: data,
+        get filteredOptions() {
+            return this.options.filter((option) =>
+                option.name.toLowerCase().includes(this.search.toLowerCase())
+            );
+        },
+        selectItem(item) {
+            this.selected = item;
+            this.search = item.name;
+            this.open = false;
+        },
+    };
+};

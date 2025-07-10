@@ -13,8 +13,14 @@ return new class extends Migration
     {
         Schema::create('items', function (Blueprint $table) {
             $table->id();
+            $table->string('kode')->default(null);
             $table->string('name');
+            $table->string('img')->default(null);
             $table->integer('pcs')->default(0);
+            $table->Biginteger('user')->default(null);
+            $table->Biginteger('cat')->default(null);
+            $table->Biginteger('unit')->default(null);
+            $table->Biginteger('stok')->default(0);
             $table->timestamps();
         });
     }

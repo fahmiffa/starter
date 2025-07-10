@@ -41,16 +41,6 @@
                         <p class="text-red-500 text-xs italic mt-2">{{ $message }}</p>
                     @enderror
                 </div>
-                  <div class="mb-4">
-                    <div class="relative">
-                        <input type="number" name="stok" value="{{ old('stok', isset($items) ? $items->stok : null) }}"
-                            placeholder="Stok"
-                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('password') border-red-500 @enderror">
-                    </div>
-                    @error('stok')
-                        <p class="text-red-500 text-xs italic mt-2">{{ $message }}</p>
-                    @enderror
-                </div>
 
                 <div x-data='dataSelect(@json($cat, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT))' class="mb-4 relative">
                     <!-- Hidden Input to Submit ID -->
