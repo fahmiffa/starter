@@ -1,6 +1,9 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\Cart;
+use App\Models\Head;
+use App\Models\Items;
 use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -44,7 +47,6 @@ class Home extends Controller
             'password_confirmation.required' => 'Konfirmasi password wajib diisi.',
         ]);
 
-
         if (! Hash::check($request->current_password, Auth::user()->password)) {
             return back()->withErrors(['current_password' => 'Password Sekarang salah']);
         }
@@ -54,5 +56,44 @@ class Home extends Controller
         ]);
 
         return back()->with('success', 'Password berhasil diperbarui.');
+    }
+
+    public function trans()
+    {
+        $products = Items::get();
+        return view('trans', compact('products'));
+    }
+
+    public function riwayat()
+    {
+        $products = Items::select('id', 'name', 'price', 'img')->get();
+        return view('trans', compact('products'));
+    }
+
+    public function transPost(Request $request)
+    {
+
+        $da            = $request->input();
+        $tot           = 0;
+        $head          = new Head;
+        $head->user    = Auth::user()->id;
+        $head->note    = $request->note;
+        $head->tanggal = date('Y-m-d');
+        $head->save();
+
+        foreach ($da as $item) {
+            $tot += $item['qty'] * $item['price'];
+
+            $cart        = new Cart;
+            $cart->item  = $item['id'];
+            $cart->count = $item['qty'];
+            $cart->head  = $head->id;
+            $cart->save();
+        }
+
+        $head->nominal = $tot;
+        $head->save();
+
+        return response()->json($da, 200);
     }
 }

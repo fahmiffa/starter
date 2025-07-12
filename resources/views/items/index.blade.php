@@ -16,7 +16,7 @@
                         <tr class="bg-gray-100 text-left border border-gray-400">
                             <th class="cursor-pointer px-4 py-2 border border-gray-400">No</th>
                             <th @click="sortBy('name')" class="cursor-pointer px-4 py-2 border border-gray-400">Name</th>
-                            <th class="cursor-pointer px-4 py-2 border border-gray-400">Unit</th>
+                            <th class="cursor-pointer px-4 py-2 border border-gray-400">Harga</th>
                             <th class="cursor-pointer px-4 py-2 border border-gray-400">Stok</th>
                             <th class="cursor-pointer px-4 py-2 border border-gray-400">Image</th>
                             <th class="cursor-pointer px-4 py-2 border border-gray-400">Action</th>
@@ -29,7 +29,7 @@
                                     x-text="((currentPage - 1) * perPage) + index + 1">
                                 </td>
                                 <td class="px-4 py-2 border border-gray-400" x-text="row.name"></td>
-                                <td class="px-4 py-2 border border-gray-400" x-text="row.size ? row.size.name : '-'"></td>
+                                <td class="px-4 py-2 border border-gray-400" x-text="row.price"></td>
                                 <td class="px-4 py-2 border border-gray-400" x-text="row.stok"></td>
                                 <td class="px-4 py-2 border border-gray-400">
                                     <template x-if="row.img">

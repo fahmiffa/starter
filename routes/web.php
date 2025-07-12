@@ -6,6 +6,7 @@ use App\Http\Controllers\Home;
 use App\Http\Controllers\ItemsController;
 use App\Http\Controllers\StokController;
 use App\Http\Controllers\UnitController;
+use App\Http\Controllers\ApiController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -16,8 +17,11 @@ Route::get('/login', [AuthController::class, 'loginForm'])->name('login')->middl
 Route::post('/login', [AuthController::class, 'login'])->middleware('guest');
 Route::get('/logout', [AuthController::class, 'logout'])->middleware('auth');
 
-Route::prefix('dashboard')->middleware('auth','isRole')->name('dashboard.')->group(function () {
+Route::prefix('dashboard')->middleware('auth', 'isRole')->name('dashboard.')->group(function () {
     Route::get('/', [Home::class, 'index'])->name('home');
+    Route::get('/transaksi', [Home::class, 'trans'])->name('trans');
+    Route::get('/riwayat', [Home::class, 'riwayat'])->name('riwayat');
+    Route::post('/transaksi', [Home::class, 'transPost'])->name('trans');
     Route::get('setting', [Home::class, 'setting'])->name('setting');
     Route::post('/pass', [Home::class, 'pass'])->name('pass');
     Route::resource('items', ItemsController::class);

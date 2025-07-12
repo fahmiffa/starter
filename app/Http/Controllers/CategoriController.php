@@ -33,7 +33,7 @@ class CategoriController extends Controller
         $request->validate([
             'name' => 'required',
         ], [
-            'name.required' => 'Nama sekarang wajib diisi.',
+            'name.required' => 'Nama wajib diisi.',
         ]);
 
         $item       = new Categori;
@@ -41,7 +41,7 @@ class CategoriController extends Controller
         $item->user = Auth::user()->id;
         $item->save();
 
-        return redirect()->route('dashboard.categori.index');
+        return response()->json(['message' => 'success']);
     }
 
     /**

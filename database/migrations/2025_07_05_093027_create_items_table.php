@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('kode')->default(null);
             $table->string('name');
+            $table->decimal('price');
             $table->string('img')->default(null);
             $table->integer('pcs')->default(0);
             $table->Biginteger('user')->default(null);

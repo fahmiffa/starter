@@ -16,6 +16,7 @@
         "vite": "^6.2.4"
     },
     "dependencies": {
-        "alpinejs": "^3.14.9"
+        "alpinejs": "^3.14.9",
+        "escpos-usb": "^3.0.0-alpha.4"
     }
 }

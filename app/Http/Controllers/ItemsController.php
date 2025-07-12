@@ -15,7 +15,7 @@ class ItemsController extends Controller
      */
     public function index()
     {
-        $items = Items::select('name', 'img', 'unit', 'id','stok')->with('size', function ($q) {
+        $items = Items::select('name', 'img', 'unit', 'id','stok','price')->with('size', function ($q) {
             $q->select('id', 'name');
         })->get();
         return view('items.index', compact('items'));
@@ -39,12 +39,12 @@ class ItemsController extends Controller
     {
         $request->validate([
             'name'    => 'required',
-            // 'unit_id' => 'required',
-            // 'cat_id'  => 'required',
+            'price' => 'required',
+            'cat_id'  => 'required',
         ], [
             'name.required'    => 'Nama sekarang wajib diisi.',
-            // 'unit_id.required' => 'Unit wajib diisi.',
-            // 'cat_id.required' => 'Unit wajib diisi.',
+            'price.required' => 'Harga wajib diisi.',
+            'cat_id.required' => 'Unit wajib diisi.',
         ]);
 
         $img = $request->file('cropped_image');
@@ -59,6 +59,7 @@ class ItemsController extends Controller
 
         $item       = new Items;
         $item->name = $request->name;
+        $item->price = $request->price;
         $item->stok = $request->stok;
         $item->user = Auth::user()->id;
         $item->img  = $file;

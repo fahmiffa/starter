@@ -11,15 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('head', function (Blueprint $table) {
-            $table->id();
-            $table->text('note');
-            $table->decimal('nominal')->default(0);
-            $table->date('tanggal')->default(null);
+        Schema::create('carts', function (Blueprint $table) {
+
+            $table->Biginteger('head')->default(null);
+            $table->Biginteger('item')->default(null);
+            $table->integer('count')->default(0);
             $table->Biginteger('user')->default(null);
             $table->timestamps();
         });
-
     }
 
     /**
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('carts');
     }
 };

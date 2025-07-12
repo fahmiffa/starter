@@ -15,7 +15,7 @@
     </script>
 @endpush
 @section('content')
-    <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-md mx-auto">
+    <div class="bg-white p-6 rounded-lg shadow-md max-w-md ml-10">
 
         <div class="font-bold mb-3 text-xl border-b-1 inline-block">{{ $action }} Item</div>
 
@@ -41,13 +41,25 @@
                         <p class="text-red-500 text-xs italic mt-2">{{ $message }}</p>
                     @enderror
                 </div>
-                  <div class="mb-4">
+
+                <div class="mb-4">
                     <div class="relative">
-                        <input type="number" name="stok" value="{{ old('stok', isset($items) ? $items->stok : null) }}"
-                            placeholder="Stok"
+                        <input type="number" name="stok" min="1"
+                            value="{{ old('stok', isset($items) ? $items->stok : null) }}" placeholder="Stok"
                             class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('password') border-red-500 @enderror">
                     </div>
                     @error('stok')
+                        <p class="text-red-500 text-xs italic mt-2">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="mb-4">
+                    <div class="relative">
+                        <input type="number" name="price" min="1"
+                            value="{{ old('stok', isset($items) ? $items->price : null) }}" placeholder="Harga"
+                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('password') border-red-500 @enderror">
+                    </div>
+                    @error('price')
                         <p class="text-red-500 text-xs italic mt-2">{{ $message }}</p>
                     @enderror
                 </div>
