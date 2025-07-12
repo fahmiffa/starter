@@ -9,6 +9,7 @@ class Head extends Model
     
     public function cart()
     {
-        return $this->belongsTo(Cart::class, 'head', 'id');
+        // return $this->belongsTo(Cart::class, 'id', 'head');
+         return $this->hasMany(Cart::class, 'head', 'id');
     }
 }

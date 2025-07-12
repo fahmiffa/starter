@@ -3,28 +3,35 @@
 @section('content')
     <div class="flex-row p-3" x-data="posApp()" x-init="refreshPending()">
         <div class="flex justify-between mb-5">
-            <div class="w-3/5 bg-gray-100 p-4 overflow-y-auto">
+            <div class="w-3/5 bg-gray-100 p-4 overflow-y-auto" x-data="{ search: '' }">
+                <div class="mb-4">
+                    <input type="text" x-model="search" placeholder="Cari Items"
+                        class="w-full p-2 rounded border border-gray-300 focus:outline-none focus:ring focus:border-blue-300" />
+                </div>
                 <div class="grid grid-cols-4 gap-4">
                     @foreach ($products as $product)
-                        <button
-                            @click="addToCart({ id: {{ $product->id }}, name: '{{ $product->name }}', price: {{ $product->price }}, stok : '{{ $product->stoks }}' })"
-                            class="bg-white shadow p-2 rounded hover:bg-blue-100">
-                            @if ($product->img)
-                                <img src="{{ asset('storage/' . $product->img) }}" alt="{{ $product->name }}"
-                                    class="h-20 mx-auto mb-2 object-cover">
-                            @else
-                                <svg xmlns="http://www.w3.org/2000/svg" class="size-25" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
-                                    class="lucide lucide-image-icon lucide-image w-24 h-24 text-gray-400">
-                                    <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-                                    <circle cx="9" cy="9" r="2" />
-                                    <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-                                </svg>
-                            @endif
-                            <p class="text-sm text-center font-semibold">{{ $product->name }}</p>
-                            <p class="text-xs text-center font-semibold">{{ number_format($product->price, 0, ',', '.') }}
-                            </p>
-                        </button>
+                        <template x-if="'{{ strtolower($product->name) }}'.includes(search.toLowerCase())">
+                            <button
+                                @click="addToCart({ id: {{ $product->id }}, name: '{{ $product->name }}', price: {{ $product->price }}, stok : '{{ $product->stoks }}' })"
+                                class="bg-white shadow p-2 rounded hover:bg-blue-100 transition">
+                                @if ($product->img)
+                                    <img src="{{ asset('storage/' . $product->img) }}" alt="{{ $product->name }}"
+                                        class="h-20 mx-auto mb-2 object-cover">
+                                @else
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="size-25" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        class="lucide lucide-image-icon lucide-image w-24 h-24 text-gray-400">
+                                        <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                                        <circle cx="9" cy="9" r="2" />
+                                        <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                                    </svg>
+                                @endif
+                                <p class="text-sm text-center font-semibold">{{ $product->name }}</p>
+                                <p class="text-xs text-center font-semibold">
+                                    {{ number_format($product->price, 0, ',', '.') }}</p>
+                            </button>
+                        </template>
                     @endforeach
                 </div>
             </div>
@@ -44,7 +51,8 @@
                                     class="w-12 text-center border rounded text-sm" x-model.number="item.qty"
                                     @input="item.qty = Math.min(item.qty, item.stok)">
                                 <button
-                                    @click="item.qty < parseInt(item.stok) ? item.qty++ : alert('Stok tidak mencukupi!')" class="px-2
+                                    @click="item.qty < parseInt(item.stok) ? item.qty++ : alert('Stok tidak mencukupi!')"
+                                    class="px-2
                                     py-1 bg-gray-300 rounded text-sm">+</button>
                             </div>
                             <div class="text-sm font-semibold ml-auto" x-text="rupiah(item.qty * item.price)"></div>
@@ -187,6 +195,5 @@
                 </tbody>
             </table>
         </div>
-
     </div>
 @endsection

@@ -67,7 +67,8 @@ class Home extends Controller
     public function riwayat()
     {
         $products = Items::select('id', 'name', 'price', 'img')->get();
-        return view('trans', compact('products'));
+        $head = Head::with('cart.items')->get();
+        return view('riwayat', compact('products','head'));
     }
 
     public function transPost(Request $request)

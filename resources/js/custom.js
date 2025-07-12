@@ -33,6 +33,7 @@ export const dataTable = (data) => {
         currentPage: 1,
         perPage: 10,
         rows: data,
+        selectedRow: null,
 
         sortBy(column) {
             if (this.sortColumn === column) {
@@ -82,6 +83,34 @@ export const dataTable = (data) => {
 
         prevPage() {
             if (this.currentPage > 1) this.currentPage--;
+        },
+
+        rupiah(number) {
+            return new Intl.NumberFormat("id-ID", {
+                style: "currency",
+                currency: "IDR",
+                minimumFractionDigits: 0,
+            }).format(number);
+        },
+
+        selectData(row) {
+            console.log(row);
+            this.selectedRow = row;
+        },
+
+        dateParse(isoDate) {
+            const date = new Date(isoDate);
+            const humanReadable = date.toLocaleString("id-ID", {
+                weekday: "long", // Sabtu
+                year: "numeric", // 2025
+                month: "long", // Juli
+                day: "numeric", // 12
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                // timeZoneName: "short", // misalnya "WIB"
+            });
+            return humanReadable;
         },
     };
 };
@@ -190,7 +219,7 @@ export function posApp() {
         },
 
         addToCart(product) {
-            console.log(product)
+            console.log(product);
             let existing = this.cart.find((i) => i.id === product.id);
             product.stok = parseInt(product.stok); // pastikan stok berupa angka
 
@@ -263,6 +292,7 @@ export function posApp() {
         removeCart(id) {
             this.cart = this.cart.filter((item) => item.id !== id);
         },
+
         rupiah(number) {
             return new Intl.NumberFormat("id-ID", {
                 style: "currency",

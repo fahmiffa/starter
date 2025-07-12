@@ -15,7 +15,7 @@ class ItemsController extends Controller
      */
     public function index()
     {
-        $items = Items::select('name', 'img', 'unit', 'id','stok','price')->with('size', function ($q) {
+        $items = Items::select('name', 'img', 'unit', 'id', 'stok', 'price')->with('size', function ($q) {
             $q->select('id', 'name');
         })->get();
         return view('items.index', compact('items'));
@@ -38,33 +38,31 @@ class ItemsController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'    => 'required',
-            'price' => 'required',
-            'cat_id'  => 'required',
+            'name'   => 'required',
+            'price'  => 'required',
+            'cat_id' => 'required',
         ], [
-            'name.required'    => 'Nama sekarang wajib diisi.',
-            'price.required' => 'Harga wajib diisi.',
+            'name.required'   => 'Nama sekarang wajib diisi.',
+            'price.required'  => 'Harga wajib diisi.',
             'cat_id.required' => 'Unit wajib diisi.',
         ]);
 
-        $img = $request->file('cropped_image');
+        $img  = $request->file('cropped_image');
         $file = null;
 
-        if($img)
-        {
+        if ($img) {
             $file = $img->store('images', 'public');
 
         }
 
-
-        $item       = new Items;
-        $item->name = $request->name;
+        $item        = new Items;
+        $item->name  = $request->name;
         $item->price = $request->price;
-        $item->stok = $request->stok;
-        $item->user = Auth::user()->id;
-        $item->img  = $file;
-        $item->unit = $request->unit_id;
-        $item->cat = $request->cat_id;
+        $item->stok  = $request->stok;
+        $item->user  = Auth::user()->id;
+        $item->img   = $file;
+        $item->unit  = $request->unit_id;
+        $item->cat   = $request->cat_id;
         $item->save();
 
         return redirect()->route('dashboard.items.index');
@@ -84,8 +82,10 @@ class ItemsController extends Controller
     public function edit(Items $items, $id)
     {
         $items  = Items::findOrFail($id);
+        $unit   = Unit::select('name', 'id')->where('user', Auth::user()->id)->get();
+        $cat    = Categori::select('name', 'id')->where('user', Auth::user()->id)->get();
         $action = "Edit";
-        return view('items.form', compact('items', 'action'));
+        return view('items.form', compact('items', 'action', 'unit', 'cat'));
     }
 
     /**
