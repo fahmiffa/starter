@@ -15,10 +15,13 @@ class ItemsController extends Controller
      */
     public function index()
     {
-        $items = Items::select('name', 'img', 'unit', 'id', 'stok', 'price')->with('size', function ($q) {
-            $q->select('id', 'name');
-        })->get();
-        return view('items.index', compact('items'));
+        return view('items.index');
+    }
+
+    public function itemJson()
+    {
+        $items = Items::with(['size:id,name'])->get();
+        return response()->json($items, 200);
     }
 
     /**
@@ -26,8 +29,8 @@ class ItemsController extends Controller
      */
     public function create()
     {
-        $unit   = Unit::select('name', 'id')->where('user', Auth::user()->id)->get();
-        $cat    = Categori::select('name', 'id')->where('user', Auth::user()->id)->get();
+        $unit   = Unit::select('name', 'id')->where('app', Auth::user()->app)->get();
+        $cat    = Categori::select('name', 'id')->where('app', Auth::user()->app)->get();
         $action = "Tambah";
         return view('items.form', compact('action', 'unit', 'cat'));
     }
@@ -38,13 +41,11 @@ class ItemsController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'   => 'required',
-            'price'  => 'required',
-            'cat_id' => 'required',
+            'name'  => 'required',
+            'price' => 'required',
         ], [
-            'name.required'   => 'Nama sekarang wajib diisi.',
-            'price.required'  => 'Harga wajib diisi.',
-            'cat_id.required' => 'Unit wajib diisi.',
+            'name.required'  => 'Nama sekarang wajib diisi.',
+            'price.required' => 'Harga wajib diisi.',
         ]);
 
         $img  = $request->file('cropped_image');
@@ -59,13 +60,13 @@ class ItemsController extends Controller
         $item->name  = $request->name;
         $item->price = $request->price;
         $item->stok  = $request->stok;
-        $item->user  = Auth::user()->id;
+        $item->app   = Auth::user()->app;
         $item->img   = $file;
         $item->unit  = $request->unit_id;
         $item->cat   = $request->cat_id;
         $item->save();
 
-        return redirect()->route('dashboard.items.index');
+        return response()->json(['message' => 'success']);
     }
 
     /**
@@ -94,18 +95,21 @@ class ItemsController extends Controller
     public function update(Request $request, Items $item)
     {
         $request->validate([
-            'name' => 'required',
-            'pcs'  => 'required',
+            'name'  => 'required',
+            'stok'  => 'required',
+            'price' => 'required',
         ], [
-            'name.required' => 'Nama sekarang wajib diisi.',
-            'pcs.required'  => 'PCS wajib diisi.',
+            'name.required'  => 'Nama sekarang wajib diisi.',
+            'stok.required'  => 'Stok wajib diisi.',
+            'price.required' => 'Harga wajib diisi.',
         ]);
 
-        $item->name = $request->name;
-        $item->pcs  = $request->pcs;
+        $item->name  = $request->name;
+        $item->price = $request->price;
+        $item->stok  = $request->stok;
         $item->save();
 
-        return redirect()->route('dashboard.items.index');
+        return response()->json(['message' => 'success']);
     }
 
     /**
@@ -114,6 +118,6 @@ class ItemsController extends Controller
     public function destroy(Items $item)
     {
         $item->delete();
-        return redirect()->route('dashboard.items.index');
+        return response()->json(['message' => 'success']);
     }
 }

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->integer('pcs')->default(0);
-            $table->Biginteger('user');
+            $table->Biginteger('app');
             $table->timestamps();
         });
     }

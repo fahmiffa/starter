@@ -14,7 +14,10 @@ return new class extends Migration
         Schema::create('stoks', function (Blueprint $table) {
             $table->id();
             $table->Biginteger('item');
-            $table->Biginteger('user');
+            $table->Biginteger('user')->nullable();
+            $table->Biginteger('app')->nullable();
+            $table->integer('status')->nullable();
+            $table->Biginteger('count')->default(0);
             $table->timestamps();
         });
     }

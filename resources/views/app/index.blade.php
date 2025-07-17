@@ -1,11 +1,10 @@
 @extends('layout.base')
 @section('title', 'Dashboard')
 @section('content')
-    <div class="text-gray-800 text-lg bg-gray-50 rounded-2xl shadow-md mx-10" x-data="Crudcat()"
-        x-init="fetchData('/dashboard/categori-json')">
+    <div class="text-gray-800 text-lg bg-gray-50 rounded-2xl shadow-md mx-10" x-data="Crud()" x-init="fetchData('/dashboard/app-json')">
         <div class="grid grid-cols-1 md:grid-cols-2 w-min-screen">
             <div class="p-6">
-                <form method="POST" @submit.prevent="formHandler('/dashboard/categori')">
+                <form method="POST" @submit.prevent="formHandler('/dashboard/app')">
                     @csrf
                     <div class="mb-4">
                         <label class="block text-gray-700 text-sm font-semibold mb-2">Nama</label>
@@ -13,6 +12,38 @@
                             class="w-full p-2 rounded border border-gray-300 focus:outline-none focus:ring focus:border-blue-300"
                             :class="errors.name ? 'border-red-500' : ''">
                         <p class="text-red-500 text-sm mt-1" x-text="errors.name?.[0]"></p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-semibold mb-2">Email</label>
+                        <input type="email" name="email" x-model="form.email"
+                            class="w-full p-2 rounded border border-gray-300 focus:outline-none focus:ring focus:border-blue-300"
+                            :class="errors.email ? 'border-red-500' : ''">
+                        <p class="text-red-500 text-sm mt-1" x-text="errors.email?.[0]"></p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-semibold mb-2">Nomor HP</label>
+                        <input type="text" name="hp" x-model="form.hp"
+                            class="w-full p-2 rounded border border-gray-300 focus:outline-none focus:ring focus:border-blue-300"
+                            :class="errors.hp ? 'border-red-500' : ''">
+                        <p class="text-red-500 text-sm mt-1" x-text="errors.hp?.[0]"></p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-semibold mb-2">Password</label>
+                        <input type="password" name="password" x-model="form.password"
+                            class="w-full p-2 rounded border border-gray-300 focus:outline-none focus:ring focus:border-blue-300"
+                            :class="errors.hp ? 'border-red-500' : ''">
+                        <p class="text-red-500 text-sm mt-1" x-text="errors.password?.[0]"></p>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-semibold mb-2">Aplikasi</label>
+                        <input type="text" name="app" x-model="form.app"
+                            class="w-full p-2 rounded border border-gray-300 focus:outline-none focus:ring focus:border-blue-300"
+                            :class="errors.app ? 'border-red-500' : ''">
+                        <p class="text-red-500 text-sm mt-1" x-text="errors.app?.[0]"></p>
                     </div>
 
                     <div class="flex items-center">
@@ -47,19 +78,18 @@
                                     <td class="px-4 py-2 flex items-center gap-1">
                                         <button @click="editItem(row)" class="text-gray-800 hover:text-gray-900">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
                                                 class="lucide lucide-pencil-icon lucide-pencil">
                                                 <path
                                                     d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
                                                 <path d="m15 5 4 4" />
                                             </svg>
                                         </button>
-                                        <button @click="deleteItem('/dashboard/categori',row.id)"
-                                            class="text-gray-800 hover:text-gray-900">
+                                        <button @click="deleteItem('/dashboard/app',row.id,row.users[0].id)" class="text-gray-800 hover:text-gray-900">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                stroke-linecap="round" stroke-linejoin="round"
                                                 class="lucide lucide-trash2-icon lucide-trash-2">
                                                 <path d="M10 11v6" />
                                                 <path d="M14 11v6" />

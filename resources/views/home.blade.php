@@ -1,45 +1,22 @@
 @extends('layout.base')
 @section('title', 'Dashboard')
 @section('content')
-<div class="text-gray-800 text-lg bg-gray-50 rounded-2xl shadow-xl max-w-3xl mx-auto">
-    <div x-data='dataTable(@json($users, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT))' class="p-4 max-w-4xl mx-auto">
-        <div class="mb-4 flex justify-between">
-            <input type="text" x-model="search" placeholder="Search..."
-                class="border border-gray-900 bg-gray-50 ring-0 rounded-xl p-1 w-full md:w-1/3" />
-        </div>
+    <div class="text-gray-800 text-lg sm:max-w-5xl mx-auto p-5">
+        <div x-data="salesChart()" x-init="fetchData('/dashboard/chart-json')" class="p-2 mx-auto">
+            <div class="flex gap-4 mb-6">
+                <!-- Filter Tahun Saja -->
+                <select x-model="selectedYear" @change="updateChart()"
+                    class="border p-1 rounded border-gray-300 focus:outline-none focus:ring focus:border-gray-300">
+                    <template x-for="year in years" :key="year">
+                        <option :value="year" x-text="year"></option>
+                    </template>
+                </select>
 
-        <table class="min-w-full bg-white border border-gray-200 text-sm">
-            <thead>
-                <tr class="bg-gray-100 text-left">
-                    <th @click="sortBy('name')" class="cursor-pointer px-4 py-2">Name</th>
-                    <th @click="sortBy('email')" class="cursor-pointer px-4 py-2">Email</th>
-                    <th @click="sortBy('age')" class="cursor-pointer px-4 py-2">Age</th>
-                </tr>
-            </thead>
-            <tbody>
-                <template x-for="row in paginatedData()" :key="row.id">
-                    <tr class="border-t">
-                        <td class="px-4 py-2" x-text="row.name"></td>
-                        <td class="px-4 py-2" x-text="row.email"></td>
-                        <td class="px-4 py-2" x-text="row.age"></td>
-                    </tr>
-                </template>
-                <tr x-show="filteredData().length === 0">
-                    <td colspan="3" class="text-center px-4 py-2 text-gray-500">No results found.</td>
-                </tr>
-            </tbody>
-        </table>
+            </div>
 
-        <!-- Pagination -->
-        <div class="flex justify-between items-center mt-4">
-            <button @click="prevPage()" :disabled="currentPage === 1"
-                class="px-3 py-1 border rounded bg-gray-100 hover:bg-gray-200 disabled:opacity-50">Prev</button>
-
-            <span>Page <span x-text="currentPage"></span> of <span x-text="totalPages()"></span></span>
-
-            <button @click="nextPage()" :disabled="currentPage === totalPages()"
-                class="px-3 py-1 border rounded bg-gray-100 hover:bg-gray-200 disabled:opacity-50">Next</button>
+            <div class="md:overflow-hidden  overflow-x-auto">
+                <div id="chart-area" class="bg-white rounded shadow p-4"></div>
+            </div>
         </div>
     </div>
-</div>
 @endsection

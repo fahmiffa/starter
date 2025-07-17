@@ -177,7 +177,6 @@ export function imageCropper() {
 }
 
 export const dataSelect = (data) => {
-    console.log(data);
     return {
         open: false,
         search: "",
@@ -202,6 +201,7 @@ export function posApp() {
         discount: 0,
         takeawayFee: 0,
         pending: [],
+        isLoading: false,
 
         get subtotal() {
             return (
@@ -302,7 +302,7 @@ export function posApp() {
         },
 
         async submitCart() {
-            console.log(JSON.stringify(this.cart));
+            this.isLoading = true;
             try {
                 const response = await fetch("/dashboard/transaksi", {
                     method: "POST",
@@ -327,6 +327,7 @@ export function posApp() {
                         data.message || "Terjadi kesalahan"
                     );
                 }
+                this.isLoading = false;
             } catch (error) {
                 console.error("Error:", error);
             }
@@ -390,22 +391,67 @@ export function posApp() {
     };
 }
 
-export function formHandler() {
+export function Crud() {
     return {
+        search: "",
+        sortColumn: "name",
+        sortAsc: true,
+        currentPage: 1,
+        perPage: 10,
+        rows: [],
         form: {
             name: "",
+            email: "",
+            hp: "",
+            password: "",
+            app: "",
+            userID: "",
         },
+        isEditing: false,
         errors: {},
         success: false,
 
-        async submitForm(actionUrl) {
-            console.log(JSON.stringify(this.form));
+        fetchData(actionUrl) {
+            const method = "GET";
+            fetch(actionUrl, {
+                method,
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document.querySelector(
+                        "meta[name=csrf-token]"
+                    ),
+                },
+            })
+                .then((res) => res.json())
+                .then((data) => (this.rows = data));
+        },
+
+        editItem(item) {
+            this.form.id = item.id;
+            this.form.app = item.name;
+            this.form.name = item.users[0].name;
+            this.form.hp = item.users[0].nomor;
+            this.form.email = item.users[0].email;
+            this.isEditing = true;
+            this.userID = item.users[0].id;
+            this.errors = {};
+        },
+
+        async formHandler(actionUrl) {
             this.errors = {};
             this.success = false;
 
             try {
-                const response = await fetch(actionUrl, {
-                    method: "POST",
+                let url = actionUrl;
+                let method = "POST";
+
+                if (this.isEditing) {
+                    url = `${actionUrl}/${this.form.id}/${this.userID}`;
+                    method = "PUT";
+                }
+
+                const response = await fetch(url, {
+                    method: method,
                     headers: {
                         "Content-Type": "application/json",
                         "X-Requested-With": "XMLHttpRequest",
@@ -426,11 +472,961 @@ export function formHandler() {
                     return;
                 }
 
-                this.form.name = "";
+                this.form = {
+                    name: "",
+                    email: "",
+                    hp: "",
+                    password: "",
+                    app: "",
+                };
                 this.success = true;
+                this.fetchData(`${actionUrl}-json`);
             } catch (error) {
                 alert(error.message);
             }
+        },
+
+        async deleteItem(actionUrl, id, user) {
+            if (!confirm("Hapus data ini?")) return;
+
+            await fetch(`${actionUrl}/${id}/${user}`, {
+                method: "DELETE",
+                headers: {
+                    "X-CSRF-TOKEN": document
+                        .querySelector('meta[name="csrf-token"]')
+                        .getAttribute("content"),
+                },
+            });
+
+            this.fetchData(`${actionUrl}-json`);
+        },
+
+        sortBy(column) {
+            if (this.sortColumn === column) {
+                this.sortAsc = !this.sortAsc;
+            } else {
+                this.sortColumn = column;
+                this.sortAsc = true;
+            }
+        },
+
+        filteredData() {
+            let temp = this.rows.filter((row) =>
+                Object.values(row).some((val) =>
+                    String(val)
+                        .toLowerCase()
+                        .includes(this.search.toLowerCase())
+                )
+            );
+
+            temp.sort((a, b) => {
+                let valA = a[this.sortColumn];
+                let valB = b[this.sortColumn];
+
+                if (typeof valA === "string") valA = valA.toLowerCase();
+                if (typeof valB === "string") valB = valB.toLowerCase();
+
+                if (valA < valB) return this.sortAsc ? -1 : 1;
+                if (valA > valB) return this.sortAsc ? 1 : -1;
+                return 0;
+            });
+
+            return temp;
+        },
+
+        paginatedData() {
+            const start = (this.currentPage - 1) * this.perPage;
+            return this.filteredData().slice(start, start + this.perPage);
+        },
+
+        totalPages() {
+            return Math.ceil(this.filteredData().length / this.perPage);
+        },
+
+        nextPage() {
+            if (this.currentPage < this.totalPages()) this.currentPage++;
+        },
+
+        prevPage() {
+            if (this.currentPage > 1) this.currentPage--;
+        },
+    };
+}
+
+export function Crudcat() {
+    return {
+        search: "",
+        sortColumn: "name",
+        sortAsc: true,
+        currentPage: 1,
+        perPage: 10,
+        rows: [],
+        form: {
+            name: "",
+            id: "",
+        },
+        isEditing: false,
+        errors: {},
+        success: false,
+
+        fetchData(actionUrl) {
+            const method = "GET";
+            fetch(actionUrl, {
+                method,
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document.querySelector(
+                        "meta[name=csrf-token]"
+                    ),
+                },
+            })
+                .then((res) => res.json())
+                .then((data) => (this.rows = data));
+        },
+
+        editItem(item) {
+            console.log(item);
+            this.form.id = item.id;
+            this.form.name = item.name;
+            this.isEditing = true;
+            this.errors = {};
+        },
+
+        async formHandler(actionUrl) {
+            this.errors = {};
+            this.success = false;
+
+            try {
+                let url = actionUrl;
+                let method = "POST";
+
+                if (this.isEditing) {
+                    url = `${actionUrl}/${this.form.id}`;
+                    method = "PUT";
+                }
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Requested-With": "XMLHttpRequest",
+                        "X-CSRF-TOKEN": document
+                            .querySelector('meta[name="csrf-token"]')
+                            ?.getAttribute("content"),
+                    },
+                    body: JSON.stringify(this.form),
+                });
+
+                if (!response.ok) {
+                    if (response.status === 422) {
+                        const res = await response.json();
+                        this.errors = res.errors || {};
+                    } else {
+                        throw new Error("Gagal mengirim data.");
+                    }
+                    return;
+                }
+
+                this.form = {
+                    name: "",
+                };
+                this.success = true;
+                this.fetchData(`${actionUrl}-json`);
+            } catch (error) {
+                alert(error.message);
+            }
+        },
+
+        async deleteItem(actionUrl, id) {
+            if (!confirm("Hapus data ini?")) return;
+
+            await fetch(`${actionUrl}/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "X-CSRF-TOKEN": document
+                        .querySelector('meta[name="csrf-token"]')
+                        .getAttribute("content"),
+                },
+            });
+
+            this.fetchData(`${actionUrl}-json`);
+        },
+
+        sortBy(column) {
+            if (this.sortColumn === column) {
+                this.sortAsc = !this.sortAsc;
+            } else {
+                this.sortColumn = column;
+                this.sortAsc = true;
+            }
+        },
+
+        filteredData() {
+            let temp = this.rows.filter((row) =>
+                Object.values(row).some((val) =>
+                    String(val)
+                        .toLowerCase()
+                        .includes(this.search.toLowerCase())
+                )
+            );
+
+            temp.sort((a, b) => {
+                let valA = a[this.sortColumn];
+                let valB = b[this.sortColumn];
+
+                if (typeof valA === "string") valA = valA.toLowerCase();
+                if (typeof valB === "string") valB = valB.toLowerCase();
+
+                if (valA < valB) return this.sortAsc ? -1 : 1;
+                if (valA > valB) return this.sortAsc ? 1 : -1;
+                return 0;
+            });
+
+            return temp;
+        },
+
+        paginatedData() {
+            const start = (this.currentPage - 1) * this.perPage;
+            return this.filteredData().slice(start, start + this.perPage);
+        },
+
+        totalPages() {
+            return Math.ceil(this.filteredData().length / this.perPage);
+        },
+
+        nextPage() {
+            if (this.currentPage < this.totalPages()) this.currentPage++;
+        },
+
+        prevPage() {
+            if (this.currentPage > 1) this.currentPage--;
+        },
+    };
+}
+
+export function Crudunit() {
+    return {
+        search: "",
+        sortColumn: "name",
+        sortAsc: true,
+        currentPage: 1,
+        perPage: 10,
+        rows: [],
+        form: {
+            name: "",
+            pcs: "",
+            id: "",
+        },
+        isEditing: false,
+        errors: {},
+        success: false,
+
+        fetchData(actionUrl) {
+            const method = "GET";
+            fetch(actionUrl, {
+                method,
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document.querySelector(
+                        "meta[name=csrf-token]"
+                    ),
+                },
+            })
+                .then((res) => res.json())
+                .then((data) => (this.rows = data));
+        },
+
+        editItem(item) {
+            this.form.id = item.id;
+            this.form.name = item.name;
+            this.form.pcs = item.pcs;
+            this.isEditing = true;
+            this.errors = {};
+        },
+
+        async formHandler(actionUrl) {
+            this.errors = {};
+            this.success = false;
+
+            try {
+                let url = actionUrl;
+                let method = "POST";
+
+                if (this.isEditing) {
+                    url = `${actionUrl}/${this.form.id}`;
+                    method = "PUT";
+                }
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Requested-With": "XMLHttpRequest",
+                        "X-CSRF-TOKEN": document
+                            .querySelector('meta[name="csrf-token"]')
+                            ?.getAttribute("content"),
+                    },
+                    body: JSON.stringify(this.form),
+                });
+
+                this.isEditing = false;
+
+                if (!response.ok) {
+                    if (response.status === 422) {
+                        const res = await response.json();
+                        this.errors = res.errors || {};
+                    } else {
+                        throw new Error("Gagal mengirim data.");
+                    }
+                    return;
+                }
+
+                this.form = {
+                    name: "",
+                };
+                this.success = true;
+                this.fetchData(`${actionUrl}-json`);
+            } catch (error) {
+                alert(error.message);
+            }
+        },
+
+        async deleteItem(actionUrl, id) {
+            if (!confirm("Hapus data ini?")) return;
+
+            await fetch(`${actionUrl}/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "X-CSRF-TOKEN": document
+                        .querySelector('meta[name="csrf-token"]')
+                        .getAttribute("content"),
+                },
+            });
+
+            this.fetchData(`${actionUrl}-json`);
+        },
+
+        sortBy(column) {
+            if (this.sortColumn === column) {
+                this.sortAsc = !this.sortAsc;
+            } else {
+                this.sortColumn = column;
+                this.sortAsc = true;
+            }
+        },
+
+        filteredData() {
+            let temp = this.rows.filter((row) =>
+                Object.values(row).some((val) =>
+                    String(val)
+                        .toLowerCase()
+                        .includes(this.search.toLowerCase())
+                )
+            );
+
+            temp.sort((a, b) => {
+                let valA = a[this.sortColumn];
+                let valB = b[this.sortColumn];
+
+                if (typeof valA === "string") valA = valA.toLowerCase();
+                if (typeof valB === "string") valB = valB.toLowerCase();
+
+                if (valA < valB) return this.sortAsc ? -1 : 1;
+                if (valA > valB) return this.sortAsc ? 1 : -1;
+                return 0;
+            });
+
+            return temp;
+        },
+
+        paginatedData() {
+            const start = (this.currentPage - 1) * this.perPage;
+            return this.filteredData().slice(start, start + this.perPage);
+        },
+
+        totalPages() {
+            return Math.ceil(this.filteredData().length / this.perPage);
+        },
+
+        nextPage() {
+            if (this.currentPage < this.totalPages()) this.currentPage++;
+        },
+
+        prevPage() {
+            if (this.currentPage > 1) this.currentPage--;
+        },
+    };
+}
+
+export function Cruditem() {
+    return {
+        cats: [],
+        searchCat: "",
+        selectedCat: null,
+        openCat: false,
+
+        unit: [],
+        searchUnit: "",
+        selectedUnit: null,
+        openUnit: false,
+
+        search: "",
+        sortColumn: "name",
+        sortAsc: true,
+        currentPage: 1,
+        perPage: 10,
+        rows: [],
+        form: {
+            name: "",
+            stok: "",
+            price: "",
+            id: "",
+            cat_id: "",
+            unit_id: "",
+        },
+        isEditing: false,
+        errors: {},
+        success: false,
+        isLoading: false,
+
+        fetchData(actionUrl) {
+            const method = "GET";
+            fetch(actionUrl, {
+                method,
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document.querySelector(
+                        "meta[name=csrf-token]"
+                    ),
+                },
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    this.rows = data;
+                });
+        },
+
+        fetchCat() {
+            const method = "GET";
+            fetch("/dashboard/categori-json", {
+                method,
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document.querySelector(
+                        "meta[name=csrf-token]"
+                    ),
+                },
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    this.cats = data;
+                });
+        },
+
+        filteredCat() {
+            return this.cats.filter((item) =>
+                item.name.toLowerCase().includes(this.searchCat.toLowerCase())
+            );
+        },
+
+        selectCat(item) {
+            this.selectedCat = item.id;
+            this.searchCat = item.name;
+            this.openCat = false;
+            this.form.cat_id = item.id;
+        },
+
+        fetchUnit() {
+            const method = "GET";
+            fetch("/dashboard/unit-json", {
+                method,
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document.querySelector(
+                        "meta[name=csrf-token]"
+                    ),
+                },
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    this.unit = data;
+                });
+        },
+
+        filteredUnit() {
+            return this.unit.filter((item) =>
+                item.name.toLowerCase().includes(this.searchUnit.toLowerCase())
+            );
+        },
+
+        selectUnit(item) {
+            this.form.unit_id = item.id;
+            this.selectedUnit = item.id;
+            this.searchUnit = item.name;
+            this.openUnit = false;
+        },
+
+        editItem(item) {
+            console.log(item);
+            this.form.id = item.id;
+            this.form.name = item.name;
+            this.form.stok = item.stok;
+            this.form.price = item.price;
+            this.isEditing = true;
+            this.errors = {};
+        },
+
+        async formHandler(actionUrl) {
+            console.log(this.form);
+            this.isLoading = true;
+            this.errors = {};
+            this.success = false;
+
+            try {
+                let url = actionUrl;
+                let method = "POST";
+
+                if (this.isEditing) {
+                    url = `${actionUrl}/${this.form.id}`;
+                    method = "PUT";
+                }
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Requested-With": "XMLHttpRequest",
+                        "X-CSRF-TOKEN": document
+                            .querySelector('meta[name="csrf-token"]')
+                            ?.getAttribute("content"),
+                    },
+                    body: JSON.stringify(this.form),
+                });
+
+                this.isEditing = false;
+
+                if (!response.ok) {
+                    if (response.status === 422) {
+                        const res = await response.json();
+                        this.errors = res.errors || {};
+                        this.isLoading = false;
+                    } else {
+                        throw new Error("Gagal mengirim data.");
+                    }
+                    return;
+                }
+
+                this.form = {
+                    name: "",
+                    stok: "",
+                    price: "",
+                    cat_id: "",
+                    unit_id: "",
+                };
+                this.selectCat = null;
+                this.selectUnit = null;
+                this.success = false;
+                this.fetchData(`${actionUrl}-json`);
+                this.isLoading = false;
+            } catch (error) {
+                alert(error.message);
+            }
+        },
+
+        async deleteItem(actionUrl, id) {
+            if (!confirm("Hapus data ini?")) return;
+
+            await fetch(`${actionUrl}/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "X-CSRF-TOKEN": document
+                        .querySelector('meta[name="csrf-token"]')
+                        .getAttribute("content"),
+                },
+            });
+
+            this.fetchData(`${actionUrl}-json`);
+        },
+
+        sortBy(column) {
+            if (this.sortColumn === column) {
+                this.sortAsc = !this.sortAsc;
+            } else {
+                this.sortColumn = column;
+                this.sortAsc = true;
+            }
+        },
+
+        filteredData() {
+            let temp = this.rows.filter((row) =>
+                Object.values(row).some((val) =>
+                    String(val)
+                        .toLowerCase()
+                        .includes(this.search.toLowerCase())
+                )
+            );
+
+            temp.sort((a, b) => {
+                let valA = a[this.sortColumn];
+                let valB = b[this.sortColumn];
+
+                if (typeof valA === "string") valA = valA.toLowerCase();
+                if (typeof valB === "string") valB = valB.toLowerCase();
+
+                if (valA < valB) return this.sortAsc ? -1 : 1;
+                if (valA > valB) return this.sortAsc ? 1 : -1;
+                return 0;
+            });
+
+            return temp;
+        },
+
+        paginatedData() {
+            const start = (this.currentPage - 1) * this.perPage;
+            return this.filteredData().slice(start, start + this.perPage);
+        },
+
+        totalPages() {
+            return Math.ceil(this.filteredData().length / this.perPage);
+        },
+
+        nextPage() {
+            if (this.currentPage < this.totalPages()) this.currentPage++;
+        },
+
+        prevPage() {
+            if (this.currentPage > 1) this.currentPage--;
+        },
+
+        numberFormat(number) {
+            return Number(number).toLocaleString("id-ID", {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+            });
+        },
+    };
+}
+
+export function Crudstok() {
+    return {
+        items: [],
+        searchItem: "",
+        selectedItem: null,
+        openItem: false,
+
+        search: "",
+        sortColumn: "name",
+        sortAsc: true,
+        currentPage: 1,
+        perPage: 10,
+        rows: [],
+        form: {
+            stok: "",
+            id: "",
+            item: "",
+        },
+        isEditing: false,
+        errors: {},
+        success: false,
+        isLoading: false,
+
+        fetchData(actionUrl) {
+            const method = "GET";
+            fetch(actionUrl, {
+                method,
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document.querySelector(
+                        "meta[name=csrf-token]"
+                    ),
+                },
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    this.rows = data;
+                    console.log(data);
+                });
+        },
+
+        fetchItem() {
+            const method = "GET";
+            fetch("/dashboard/items-json", {
+                method,
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document.querySelector(
+                        "meta[name=csrf-token]"
+                    ),
+                },
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    this.items = data;
+                });
+        },
+
+        filteredItem() {
+            return this.items.filter((item) =>
+                item.name.toLowerCase().includes(this.searchItem.toLowerCase())
+            );
+        },
+
+        selectItem(item) {
+            this.selectedItem = item.id;
+            this.searchItem = item.name;
+            this.openItem = false;
+            this.form.item = item.id;
+        },
+
+        editItem(item) {
+            console.log(item);
+            this.form.id = item.id;
+            this.form.name = item.name;
+            this.form.stok = item.stok;
+            this.form.price = item.price;
+            this.isEditing = true;
+            this.errors = {};
+        },
+
+        async formHandler(actionUrl) {
+            console.log(this.form);
+            this.isLoading = true;
+            this.errors = {};
+            this.success = false;
+
+            try {
+                let url = actionUrl;
+                let method = "POST";
+
+                if (this.isEditing) {
+                    url = `${actionUrl}/${this.form.id}`;
+                    method = "PUT";
+                }
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Requested-With": "XMLHttpRequest",
+                        "X-CSRF-TOKEN": document
+                            .querySelector('meta[name="csrf-token"]')
+                            ?.getAttribute("content"),
+                    },
+                    body: JSON.stringify(this.form),
+                });
+
+                this.isEditing = false;
+
+                if (!response.ok) {
+                    if (response.status === 422) {
+                        const res = await response.json();
+                        this.errors = res.errors || {};
+                        this.isLoading = false;
+                    } else {
+                        throw new Error("Gagal mengirim data.");
+                    }
+                    return;
+                }
+
+                this.form = {
+                    item: "",
+                    stok: "",
+                };
+                this.selectCat = null;
+                this.selectUnit = null;
+                this.success = false;
+                this.fetchData(`${actionUrl}-json`);
+                this.isLoading = false;
+            } catch (error) {
+                alert(error.message);
+            }
+        },
+
+        async deleteItem(actionUrl, id) {
+            if (!confirm("Hapus data ini?")) return;
+
+            await fetch(`${actionUrl}/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "X-CSRF-TOKEN": document
+                        .querySelector('meta[name="csrf-token"]')
+                        .getAttribute("content"),
+                },
+            });
+
+            this.fetchData(`${actionUrl}-json`);
+        },
+
+        sortBy(column) {
+            if (this.sortColumn === column) {
+                this.sortAsc = !this.sortAsc;
+            } else {
+                this.sortColumn = column;
+                this.sortAsc = true;
+            }
+        },
+
+        filteredData() {
+            let temp = this.rows.filter((row) =>
+                Object.values(row.items[0].name).some((val) =>
+                    String(val)
+                        .toLowerCase()
+                        .includes(this.search.toLowerCase())
+                )
+            );
+
+            console.log(temp);
+
+            temp.sort((a, b) => {
+                let valA = a[this.sortColumn];
+                let valB = b[this.sortColumn];
+
+                if (typeof valA === "string") valA = valA.toLowerCase();
+                if (typeof valB === "string") valB = valB.toLowerCase();
+
+                if (valA < valB) return this.sortAsc ? -1 : 1;
+                if (valA > valB) return this.sortAsc ? 1 : -1;
+                return 0;
+            });
+
+            return temp;
+        },
+
+        paginatedData() {
+            const start = (this.currentPage - 1) * this.perPage;
+            return this.filteredData().slice(start, start + this.perPage);
+        },
+
+        totalPages() {
+            return Math.ceil(this.filteredData().length / this.perPage);
+        },
+
+        nextPage() {
+            if (this.currentPage < this.totalPages()) this.currentPage++;
+        },
+
+        prevPage() {
+            if (this.currentPage > 1) this.currentPage--;
+        },
+
+        numberFormat(number) {
+            return Number(number).toLocaleString("id-ID", {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+            });
+        },
+
+        dateParse(isoDate) {
+            const date = new Date(isoDate);
+            const humanReadable = date.toLocaleString("id-ID", {
+                weekday: "long", // Sabtu
+                year: "numeric", // 2025
+                month: "long", // Juli
+                day: "numeric", // 12
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                // timeZoneName: "short", // misalnya "WIB"
+            });
+            return humanReadable;
+        },
+    };
+}
+
+import Chart from "@toast-ui/chart";
+import "@toast-ui/chart/dist/toastui-chart.min.css";
+
+export function salesChart(actionUrl) {
+    return {
+        selectedMonth: new Date().getMonth() + 1,
+        selectedYear: new Date().getFullYear(),
+        months: [
+            "Januari",
+            "Februari",
+            "Maret",
+            "April",
+            "Mei",
+            "Juni",
+            "Juli",
+            "Agustus",
+            "September",
+            "Oktober",
+            "November",
+            "Desember",
+        ],
+        years: [],
+        dummyData: null,
+
+       async fetchData(actionUrl) {
+            const method = "GET";
+            fetch(actionUrl, {
+                method,
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document.querySelector(
+                        "meta[name=csrf-token]"
+                    ),
+                },
+            })
+                .then((res) => res.json())
+                .then((da) => {
+                    this.years = da.Year;
+                    this.dummyData = da.data;
+                       this.$nextTick(() => {
+                this.renderChart();
+            });
+                });
+        },
+
+        chartInstance: null,
+
+        updateChart() {
+            this.renderChart();
+        },
+
+        renderChart() {
+            const dataByYear = this.dummyData[this.selectedYear] || {};
+            const categories = Object.keys(dataByYear); // Bulan di Y
+            const totals = Object.values(dataByYear); // Total di X
+
+            const chartData = {
+                categories: categories,
+                series: [
+                    {
+                        name: "Total Penjualan",
+                        data: totals,
+                    },
+                ],
+            };
+
+            const options = {
+                chart: {
+                    width: 700,
+                    height: 400,
+                    title: `Grafik Penjualan Tahun ${this.selectedYear}`,
+                },
+                xAxis: {
+                    title: "Bulan",
+                },
+                yAxis: {
+                    title: "Jumlah",
+                },
+                series: {
+                    verticalAlign: true, // ✅ Membuat batang horizontal
+                },
+                responsive: {
+                    animation: true,
+                },
+            };
+
+            const container = document.getElementById("chart-area");
+            container.innerHTML = "";
+
+            this.chartInstance = Chart.columnChart({
+                el: container,
+                data: chartData,
+                options,
+            });
         },
     };
 }

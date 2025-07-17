@@ -13,14 +13,14 @@ return new class extends Migration
     {
         Schema::create('items', function (Blueprint $table) {
             $table->id();
-            $table->string('kode')->default(null);
+            $table->string('kode')->nullable();
             $table->string('name');
             $table->decimal('price');
-            $table->string('img')->default(null);
+            $table->string('img')->nullable();
             $table->integer('pcs')->default(0);
-            $table->Biginteger('user')->default(null);
-            $table->Biginteger('cat')->default(null);
-            $table->Biginteger('unit')->default(null);
+            $table->Biginteger('app')->nullable();
+            $table->Biginteger('cat')->nullable();
+            $table->Biginteger('unit')->nullable();
             $table->Biginteger('stok')->default(0);
             $table->timestamps();
         });

@@ -1,12 +1,11 @@
 @extends('layout.base')
 @section('title', 'Dashboard')
 @section('content')
-    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md mx-auto">
-
+    <div class="bg-white p-8 rounded-lg shadow-md max-w-md mx-10">
+        <div class="font-bold mb-3 text-xl">Ubah Password</div>
         @if (session('success'))
             <div class="text-green-800 my-3">{{ session('success') }}</div>
         @endif
-
         <form method="POST" action="{{ route('dashboard.pass') }}">
             @csrf
 

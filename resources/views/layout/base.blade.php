@@ -7,18 +7,12 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="icon" href="{{ asset('icon.svg') }}" type="image/svg" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
-
     <title>@yield('title', 'Aplikasi Saya')</title> 
-
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-
     @stack('styles')
 </head>
 
 <body class="font-sans antialiased bg-gray-100 text-gray-900">
-
-
     <div x-data="layout()" x-init="init()" class="flex h-screen">
 
 
@@ -65,5 +59,4 @@
         }
     </script>
 </body>
-
 </html>

@@ -16,7 +16,6 @@ return new class extends Migration
             $table->Biginteger('head')->default(null);
             $table->Biginteger('item')->default(null);
             $table->integer('count')->default(0);
-            $table->Biginteger('user')->default(null);
             $table->timestamps();
         });
     }

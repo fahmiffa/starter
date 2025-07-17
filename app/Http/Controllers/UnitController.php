@@ -16,6 +16,11 @@ class UnitController extends Controller
         return view('unit.index', compact('items'));
     }
 
+    public function unitJson()
+    {
+        $items = Unit::where('app', Auth::user()->app)->get();
+        return response()->json($items, 200);
+    }
     /**
      * Show the form for creating a new resource.
      */
@@ -41,19 +46,15 @@ class UnitController extends Controller
         $item       = new Unit;
         $item->name = $request->name;
         $item->pcs  = $request->pcs;
-        $item->user = Auth::user()->id;
+        $item->app  = Auth::user()->app;
         $item->save();
 
-        return redirect()->route('dashboard.unit.index');
+        return response()->json(['message' => 'success']);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Unit $unit)
-    {
-        //
-    }
 
     /**
      * Show the form for editing the specified resource.
@@ -82,7 +83,7 @@ class UnitController extends Controller
         $unit->pcs  = $request->pcs;
         $unit->save();
 
-        return redirect()->route('dashboard.unit.index');
+        return response()->json(['message' => 'success']);
     }
 
     /**
@@ -91,6 +92,6 @@ class UnitController extends Controller
     public function destroy(Unit $unit)
     {
         $unit->delete();
-        return redirect()->route('dashboard.unit.index');
+        return response()->json(['message' => 'success']);
     }
 }

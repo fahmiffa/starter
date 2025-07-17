@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('categoris', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->Biginteger('user');
+            $table->Biginteger('app');
             $table->timestamps();
         });
     }

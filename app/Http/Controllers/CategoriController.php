@@ -12,7 +12,7 @@ class CategoriController extends Controller
      */
     public function index()
     {
-        $items = Categori::select('name', 'id')->get();
+        $items = Categori::where('app', Auth::user()->app)->get();
         return view('categori.index', compact('items'));
     }
 
@@ -38,10 +38,17 @@ class CategoriController extends Controller
 
         $item       = new Categori;
         $item->name = $request->name;
-        $item->user = Auth::user()->id;
+        $item->app  = Auth::user()->app;
         $item->save();
 
         return response()->json(['message' => 'success']);
+
+    }
+
+    public function categoriJson()
+    {
+        $items = Categori::where('app', Auth::user()->app)->get();
+        return response()->json($items, 200);
     }
 
     /**
@@ -77,7 +84,9 @@ class CategoriController extends Controller
 
         $categori->save();
 
-        return redirect()->route('dashboard.categori.index');
+        return response()->json(['message' => 'success']);
+
+        // return redirect()->route('dashboard.categori.index');
     }
 
     /**
@@ -86,6 +95,6 @@ class CategoriController extends Controller
     public function destroy(Categori $categori)
     {
         $categori->delete();
-        return redirect()->route('dashboard.categori.index');
+        return response()->json(['message' => 'success']);
     }
 }

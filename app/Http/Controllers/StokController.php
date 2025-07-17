@@ -1,8 +1,9 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Stok;
+use App\Models\Items;
+use Auth;
 use Illuminate\Http\Request;
 
 class StokController extends Controller
@@ -12,7 +13,13 @@ class StokController extends Controller
      */
     public function index()
     {
-        //
+        return view('stok.index');
+    }
+
+    public function stokJson()
+    {
+        $app = Stok::with('items')->where('status',1)->get();
+        return response()->json($app, 200);
     }
 
     /**
@@ -28,7 +35,23 @@ class StokController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'item' => 'required',
+            'stok' => 'required',
+        ], [
+            'item.required' => 'Nama wajib diisi.',
+            'stok.required' => 'Stok wajib diisi.',
+        ]);
+
+        $stok         = new Stok;
+        $stok->item   = $request->item;
+        $stok->count  = $request->stok;
+        $stok->app    = Auth::user()->app;
+        $stok->user   = Auth::user()->id;
+        $stok->status = 1;
+        $stok->save();
+
+        return response()->json(['message' => 'success']);
     }
 
     /**

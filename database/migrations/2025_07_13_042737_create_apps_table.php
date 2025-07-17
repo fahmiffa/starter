@@ -11,16 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('head', function (Blueprint $table) {
+        Schema::create('apps', function (Blueprint $table) {
             $table->id();
-            $table->text('note')->nullable();
-            $table->decimal('nominal')->default(0);
-            $table->date('tanggal')->nullable();
-            $table->Biginteger('user')->nullable();
-            $table->Biginteger('app')->nullable();
+            $table->string('name');
+            $table->string('logo')->nullable();
             $table->timestamps();
         });
-
     }
 
     /**
@@ -28,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('apps');
     }
 };

@@ -15,8 +15,6 @@ class Api
      */
     public function handle(Request $request, Closure $next): Response
     {
-        dd(JWTAuth::parseToken()->authenticate());
-        dd('user');
         try {
             JWTAuth::parseToken()->authenticate();
         } catch (Exception $e) {
