@@ -23,7 +23,7 @@
         </button>
     </div>
 
-    <div class="text-lg font-semibold">Dashboard</div>
+    <div class="text-lg font-semibold">{{ request()->segment(2) ? ucfirst(request()->segment(2)) : "Dashboard"}}</div>
     <div class="flex items-center gap-5">
         <a href="{{ route('dashboard.setting') }}">
             <svg xmlns="http://www.w3.org/2000/svg" class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"

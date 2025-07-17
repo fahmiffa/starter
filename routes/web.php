@@ -29,6 +29,9 @@ Route::prefix('dashboard')->middleware('auth')->name('dashboard.')->group(functi
     Route::get('/unit-json', [UnitController::class, 'unitJson'])->name('unit.json');
     Route::resource('stok', StokController::class);
     Route::get('/stok-json', [StokController::class, 'stokJson'])->name('stok.json');
+    Route::get('/laporan', [Home::class, 'laporan'])->name('laporan');
+    Route::get('/laporan-json/{tipe}/{tahun}', [Home::class, 'laporanJson'])->name('laporan.json');
+    Route::post('/laporan', [Home::class, 'laporanStore'])->name('laporanStore');
 
     Route::middleware('isRole')->group(function () {
         Route::get('/app', [Home::class, 'app'])->name('app');

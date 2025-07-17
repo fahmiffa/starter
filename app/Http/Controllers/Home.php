@@ -105,6 +105,54 @@ class Home extends Controller
         return view('home');
     }
 
+    public function laporanStore(Request $request)
+    {
+        $request->validate([
+            'tipe' => 'required',
+        ], [
+            'tipe.required' => 'Tipe wajib diisi.',
+        ]);
+
+        $cart = Cart::select('item', DB::raw('SUM(count) as total_count'))
+            ->groupBy('item')
+            ->with('items:id,name,price');
+
+        if ($request->tahun) {
+            $cart = $cart->whereYear('created_at', $request->tahun)->get();
+        } else {
+            $cart = $cart->get();
+        }
+
+        return response()->json($cart, 200);
+
+    }
+
+    public function laporanJson($tipe,$tahun)
+    {
+        $cart = Cart::select('item', DB::raw('SUM(count) as total_count'))
+            ->groupBy('item')
+        // ->whereYear('created_at', 2025)
+            ->with('items:id,name,price')
+            ->get();
+
+        return response()->json($cart, 200);
+    }
+
+    public function laporan()
+    {
+
+        $penjualan = [];
+        $now       = (int) date('Y');
+        $start     = (int) env('APP_START');
+        $start     = 2024;
+        $year      = [];
+
+        for ($tahun = $now; $tahun >= $start; $tahun--) {
+            array_push($year, $tahun);
+        }
+        return view('report', compact('penjualan', 'year'));
+    }
+
     public function chart()
     {
 

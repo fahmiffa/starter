@@ -1357,7 +1357,7 @@ export function salesChart(actionUrl) {
         years: [],
         dummyData: null,
 
-       async fetchData(actionUrl) {
+        async fetchData(actionUrl) {
             const method = "GET";
             fetch(actionUrl, {
                 method,
@@ -1372,9 +1372,9 @@ export function salesChart(actionUrl) {
                 .then((da) => {
                     this.years = da.Year;
                     this.dummyData = da.data;
-                       this.$nextTick(() => {
-                this.renderChart();
-            });
+                    this.$nextTick(() => {
+                        this.renderChart();
+                    });
                 });
         },
 
@@ -1426,6 +1426,141 @@ export function salesChart(actionUrl) {
                 el: container,
                 data: chartData,
                 options,
+            });
+        },
+    };
+}
+
+export function report() {
+    return {
+        param: null,
+        search: "",
+        sortColumn: "name",
+        sortAsc: true,
+        currentPage: 1,
+        perPage: 10,
+        rows: [],
+        form: {
+            tahun: "",
+            tipe: "",
+        },
+        isEditing: false,
+        errors: {},
+        success: false,
+
+        fetchData(actionUrl) {
+            const method = "GET";
+            fetch(actionUrl, {
+                method,
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document.querySelector(
+                        "meta[name=csrf-token]"
+                    ),
+                },
+            })
+                .then((res) => res.json())
+                .then((data) => (this.rows = data));
+        },
+
+        editItem(item) {
+            this.form.id = item.id;
+            this.form.app = item.name;
+            this.form.name = item.users[0].name;
+            this.form.hp = item.users[0].nomor;
+            this.form.email = item.users[0].email;
+            this.isEditing = true;
+            this.userID = item.users[0].id;
+            this.errors = {};
+        },
+
+        async submitForm(event) {
+            this.errors = {};
+            const form = event.target;
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch(form.getAttribute("action"), {
+                    method: form.getAttribute("method"),
+                    headers: {
+                        "X-CSRF-TOKEN": document.querySelector(
+                            'meta[name="csrf-token"]'
+                        ).content,
+                        "X-Requested-With": "XMLHttpRequest",
+                    },
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    if (response.status === 422) {
+                        const res = await response.json();
+                        this.errors = res.errors || {};
+                    } else {
+                        throw new Error("Gagal mengirim data.");
+                    }
+                    return;
+                }
+
+                const result = await response.json();
+                this.rows = result;
+            } catch (error) {
+                alert(error.message);
+            }
+        },
+
+        sortBy(column) {
+            if (this.sortColumn === column) {
+                this.sortAsc = !this.sortAsc;
+            } else {
+                this.sortColumn = column;
+                this.sortAsc = true;
+            }
+        },
+
+        filteredData() {
+            let temp = this.rows.filter((row) =>
+                Object.values(row).some((val) =>
+                    String(val)
+                        .toLowerCase()
+                        .includes(this.search.toLowerCase())
+                )
+            );
+
+            temp.sort((a, b) => {
+                let valA = a[this.sortColumn];
+                let valB = b[this.sortColumn];
+
+                if (typeof valA === "string") valA = valA.toLowerCase();
+                if (typeof valB === "string") valB = valB.toLowerCase();
+
+                if (valA < valB) return this.sortAsc ? -1 : 1;
+                if (valA > valB) return this.sortAsc ? 1 : -1;
+                return 0;
+            });
+
+            return temp;
+        },
+
+        paginatedData() {
+            const start = (this.currentPage - 1) * this.perPage;
+            return this.filteredData().slice(start, start + this.perPage);
+        },
+
+        totalPages() {
+            return Math.ceil(this.filteredData().length / this.perPage);
+        },
+
+        nextPage() {
+            if (this.currentPage < this.totalPages()) this.currentPage++;
+        },
+
+        prevPage() {
+            if (this.currentPage > 1) this.currentPage--;
+        },
+        numberFormat(number) {
+            return Number(number).toLocaleString("id-ID", {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
             });
         },
     };
