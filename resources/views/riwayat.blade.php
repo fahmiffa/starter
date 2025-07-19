@@ -4,11 +4,12 @@
     <div class="flex justify-between mb-5" x-data='dataTable(@json($head, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT))'>
         <div class="w-full bg-gray-100 p-4 overflow-y-auto">
             <div class="p-4 max-w-4xl mx-auto">
-                <div class="overflow-x-auto">
+                <div class="overflow-x-auto rounded-2xl shadow-md">
                     <table class="min-w-full bg-white border border-gray-200 text-sm">
                         <thead>
-                            <tr class="bg-gray-100 text-left">
+                            <tr class="bg-gray-800 text-white text-left">
                                 <th @click="sortBy('name')" class="cursor-pointer px-4 py-2">No</th>
+                                <th class="cursor-pointer px-4 py-2">Kode</th>
                                 <th class="cursor-pointer px-4 py-2">Waktu</th>
                                 <th class="cursor-pointer px-4 py-2">Item</th>
                                 <th class="cursor-pointer px-4 py-2">Total</th>
@@ -18,6 +19,7 @@
                             <template x-for="(row, index)  in paginatedData()" :key="row.id">
                                 <tr class="border-t border-gray-200">
                                     <td class="px-4 py-2" x-text="((currentPage - 1) * perPage) + index + 1"></td>
+                                    <td class="px-4 py-2" x-text="row.kode"></td>
                                     <td class="px-4 py-2" x-text="dateParse(row.created_at)"></td>
                                     <td class="px-4 py-2">
                                         <table class="w-full">

@@ -54,10 +54,10 @@
                             class="border border-gray-400 bg-gray-50 ring-0 rounded-xl px-3 py-2 w-full focus:outline-none" />
                     </div>
 
-                    <div class="overflow-x-auto">
+                    <div class="overflow-x-auto rounded-2xl shadow-md">
                         <table class="min-w-full bg-white border border-gray-200 text-sm">
                             <thead>
-                                <tr class="bg-gray-100 text-left">
+                                <tr class="bg-gray-700 text-white text-left">
                                     <th class="cursor-pointer px-4 py-2">No</th>
                                     <th @click="sortBy('name')" class="cursor-pointer px-4 py-2">Name</th>
                                     <th class="cursor-pointer px-4 py-2">Stok</th>

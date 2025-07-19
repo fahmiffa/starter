@@ -1336,7 +1336,7 @@ export function Crudstok() {
 import Chart from "@toast-ui/chart";
 import "@toast-ui/chart/dist/toastui-chart.min.css";
 
-export function salesChart(actionUrl) {
+export function salesChart() {
     return {
         selectedMonth: new Date().getMonth() + 1,
         selectedYear: new Date().getFullYear(),
@@ -1441,26 +1441,34 @@ export function report() {
         perPage: 10,
         rows: [],
         form: {
-            tahun: "",
-            tipe: "",
+            tahun: "0",
+            tipe: "1",
         },
         isEditing: false,
         errors: {},
         success: false,
 
-        fetchData(actionUrl) {
-            const method = "GET";
-            fetch(actionUrl, {
-                method,
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": document.querySelector(
-                        "meta[name=csrf-token]"
-                    ),
-                },
-            })
-                .then((res) => res.json())
-                .then((data) => (this.rows = data));
+        async init(defaultTahun, defaultTipe) {
+            this.form.tahun = defaultTahun;
+            this.form.tipe = defaultTipe;
+            await this.fetchData();
+        },
+
+        async fetchData() {
+            try {
+                const response = await fetch(
+                    `/dashboard/laporan-json/${this.form.tipe}/${this.form.tahun}`
+                );
+                const result = await response.json();
+                this.rows = result;
+            } catch (error) {
+                console.error("Fetch error:", error);
+            }
+        },
+
+        submitForm(event) {
+            this.errors = {};
+            this.fetchData();
         },
 
         editItem(item) {
@@ -1474,40 +1482,6 @@ export function report() {
             this.errors = {};
         },
 
-        async submitForm(event) {
-            this.errors = {};
-            const form = event.target;
-            const formData = new FormData(form);
-
-            try {
-                const response = await fetch(form.getAttribute("action"), {
-                    method: form.getAttribute("method"),
-                    headers: {
-                        "X-CSRF-TOKEN": document.querySelector(
-                            'meta[name="csrf-token"]'
-                        ).content,
-                        "X-Requested-With": "XMLHttpRequest",
-                    },
-                    body: formData,
-                });
-
-                if (!response.ok) {
-                    if (response.status === 422) {
-                        const res = await response.json();
-                        this.errors = res.errors || {};
-                    } else {
-                        throw new Error("Gagal mengirim data.");
-                    }
-                    return;
-                }
-
-                const result = await response.json();
-                this.rows = result;
-            } catch (error) {
-                alert(error.message);
-            }
-        },
-
         sortBy(column) {
             if (this.sortColumn === column) {
                 this.sortAsc = !this.sortAsc;
@@ -1518,27 +1492,7 @@ export function report() {
         },
 
         filteredData() {
-            let temp = this.rows.filter((row) =>
-                Object.values(row).some((val) =>
-                    String(val)
-                        .toLowerCase()
-                        .includes(this.search.toLowerCase())
-                )
-            );
-
-            temp.sort((a, b) => {
-                let valA = a[this.sortColumn];
-                let valB = b[this.sortColumn];
-
-                if (typeof valA === "string") valA = valA.toLowerCase();
-                if (typeof valB === "string") valB = valB.toLowerCase();
-
-                if (valA < valB) return this.sortAsc ? -1 : 1;
-                if (valA > valB) return this.sortAsc ? 1 : -1;
-                return 0;
-            });
-
-            return temp;
+            return this.rows;
         },
 
         paginatedData() {
@@ -1557,6 +1511,27 @@ export function report() {
         prevPage() {
             if (this.currentPage > 1) this.currentPage--;
         },
+
+        totalNominal() {
+            return this.filteredData().reduce(
+                (sum, row) => sum + (parseFloat(row.nominal) || 0),
+                0
+            );
+        },
+
+        totalItem() {
+            return this.filteredData().reduce(
+                (sum, row) =>
+                    sum + (parseFloat(row.items?.price) * row.total_count || 0),
+                0
+            );
+        },
+
+        dateLocal(datetime) {
+            let date = new Date(datetime);
+            return date.toLocaleDateString("id-ID");
+        },
+
         numberFormat(number) {
             return Number(number).toLocaleString("id-ID", {
                 minimumFractionDigits: 0,

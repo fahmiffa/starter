@@ -113,27 +113,75 @@ class Home extends Controller
             'tipe.required' => 'Tipe wajib diisi.',
         ]);
 
-        $cart = Cart::select('item', DB::raw('SUM(count) as total_count'))
-            ->groupBy('item')
-            ->with('items:id,name,price');
+        $tipe  = $request->tipe;
+        $tahun = $request->tahun;
 
-        if ($request->tahun) {
-            $cart = $cart->whereYear('created_at', $request->tahun)->get();
-        } else {
-            $cart = $cart->get();
+        $cart = [];
+
+        if ($tipe == 1) {
+            $cart = Head::select('id', 'tanggal', 'nominal')
+                ->where('user', Auth::user()->id);
+
+            if ($tahun && $tahun != 0) {
+                $cart = $cart->whereYear('tanggal', $request->tahun)->get();
+            } else {
+                $cart = $cart->get();
+            }
+        }
+
+        if ($tipe == 3) {
+            $cart = Cart::select('item', DB::raw('SUM(count) as total_count'))
+                ->groupBy('item')
+                ->with('items:id,name,price');
+
+            if ($request->tahun) {
+                $cart = $cart->whereYear('created_at', $request->tahun)->get();
+            } else {
+                $cart = $cart->get();
+            }
         }
 
         return response()->json($cart, 200);
 
     }
 
-    public function laporanJson($tipe,$tahun)
+    public function laporanJson($tipe, $tahun)
     {
-        $cart = Cart::select('item', DB::raw('SUM(count) as total_count'))
-            ->groupBy('item')
-        // ->whereYear('created_at', 2025)
-            ->with('items:id,name,price')
-            ->get();
+        $cart = [];
+        if ($tipe == 3) {
+            $cart = Cart::select('item', DB::raw('SUM(count) as total_count'))
+                ->groupBy('item')
+                ->with('items:id,name,price');
+
+            if ($tahun && $tahun != 0) {
+                $cart = $cart->whereYear('created_at', $tahun)->get();
+            } else {
+                $cart = $cart->get();
+            }
+        }
+
+        if ($tipe == 1) {
+            $cart = Head::select('id', 'tanggal', 'nominal')
+                ->where('user', Auth::user()->id);
+
+            if ($tahun && $tahun != 0) {
+                $cart = $cart->whereYear('tanggal', $tahun)->get();
+            } else {
+                $cart = $cart->get();
+            }
+        }
+
+        if ($tipe == 2) {
+            $cart = Stok::select('id', 'item', 'count','status','created_at')
+                ->where('user', Auth::user()->id)
+                ->with('items');
+
+            if ($tahun && $tahun != 0) {
+                $cart = $cart->whereYear('created_at', $tahun)->get();
+            } else {
+                $cart = $cart->get();
+            }
+        }
 
         return response()->json($cart, 200);
     }

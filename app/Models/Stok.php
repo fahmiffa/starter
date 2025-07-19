@@ -8,6 +8,6 @@ class Stok extends Model
 
     public function items()
     {
-        return $this->hasMany(Items::class, 'id', 'item');
+        return $this->belongsTo(Items::class, 'item', 'id');
     }
 }
